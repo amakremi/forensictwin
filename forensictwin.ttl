@@ -1,0 +1,203 @@
+@prefix ft: <http://github.com/amakremi/forensictwin#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix uco: <https://ontology.unifiedcyberontology.org/uco/> .
+@prefix uco-core: <https://ontology.unifiedcyberontology.org/uco/core/> .
+@prefix uco-observable: <https://ontology.unifiedcyberontology.org/uco/observable/> .
+@prefix uco-identity: <https://ontology.unifiedcyberontology.org/uco/identity/> .
+@prefix uco-policy: <https://ontology.unifiedcyberontology.org/uco/policy/> .
+@prefix ssn: <http://www.w3.org/ns/ssn/> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix case: <https://ontology.caseontology.org/case#> .
+@prefix iot: <http://purl.oclc.org/NET/UNIS/fiware/iot-lite#> .
+
+# === Ontology Header ===
+ft:ontology a owl:Ontology ;
+    owl:imports <https://ontology.unifiedcyberontology.org/uco/> ,
+                <http://www.w3.org/ns/ssn/> ,
+                <https://ontology.caseontology.org/case#> ,
+                <http://purl.oclc.org/NET/UNIS/fiware/iot-lite#> .
+
+# === Classes ===
+ft:ForensicTwin a owl:Class ;
+    rdfs:subClassOf ssn:FeatureOfInterest .
+
+ft:PhysicalAsset a owl:Class ;
+    rdfs:subClassOf ssn:FeatureOfInterest .
+
+ft:SecurityCheck a owl:Class ;
+    rdfs:subClassOf uco:ObservableObject .
+
+ft:AuthenticityCheck a owl:Class ;
+    rdfs:subClassOf ft:SecurityCheck .
+
+ft:IntegrityCheck a owl:Class ;
+    rdfs:subClassOf ft:SecurityCheck .
+
+ft:ConsistencyCheck a owl:Class ;
+    rdfs:subClassOf ft:SecurityCheck .
+
+ft:SecurityEvent a owl:Class ;
+    rdfs:subClassOf uco:ObservableObject .
+
+ft:FirmwareUpdate a owl:Class ;
+    rdfs:subClassOf ft:SecurityEvent .
+
+ft:ForensicLog a owl:Class ;
+    rdfs:subClassOf case:Logging .
+
+ft:OrganizationPolicy a owl:Class ;
+    rdfs:subClassOf uco-policy:Policy .
+
+ft:SecurityExpert a owl:Class ;
+    rdfs:subClassOf uco-identity:Role .
+
+ft:Role a owl:Class ;
+    rdfs:subClassOf uco-identity:Role .
+
+ft:Admin a owl:Class ;
+    rdfs:subClassOf ft:Role .
+
+ft:Auditor a owl:Class ;
+    rdfs:subClassOf ft:Role .
+
+ft:GeneralUser a owl:Class ;
+    rdfs:subClassOf ft:Role .
+
+ft:PLC a owl:Class ;
+    rdfs:subClassOf ft:PhysicalAsset ,
+                    iot:Device .
+
+ft:AccessControlRule a owl:Class ;
+    rdfs:subClassOf uco-policy:Policy .
+
+ft:IntegrityViolation a owl:Class .
+ft:ReplayAttackDetected a owl:Class .
+ft:SyncAttackDetected a owl:Class .
+ft:TamperedLogDetected a owl:Class .
+ft:PrivacyViolation a owl:Class .
+
+# === Properties ===
+ft:hasTimestamp a owl:DatatypeProperty ;
+    rdfs:domain ft:SecurityEvent ;
+    rdfs:range xsd:dateTime ;
+    rdfs:subPropertyOf uco-core:hasTimestamp .
+
+ft:hasSignature a owl:DatatypeProperty ;
+    rdfs:domain ft:SecurityEvent ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf uco-observable:hash .
+
+ft:isEncrypted a owl:DatatypeProperty ;
+    rdfs:domain ft:SecurityEvent ;
+    rdfs:range xsd:boolean ;
+    rdfs:subPropertyOf uco-observable:isEncrypted .
+
+ft:hasStateHash a owl:DatatypeProperty ;
+    rdfs:domain ft:ForensicTwin ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf uco-observable:hash .
+
+ft:expectedStateHash a owl:DatatypeProperty ;
+    rdfs:domain ft:ForensicTwin ;
+    rdfs:range xsd:string .
+
+ft:observedStateHash a owl:DatatypeProperty ;
+    rdfs:domain ft:PhysicalAsset ;
+    rdfs:range xsd:string .
+
+ft:triggers a owl:ObjectProperty ;
+    rdfs:domain ft:PhysicalAsset ;
+    rdfs:range ft:SecurityEvent ;
+    rdfs:subPropertyOf ssn:detects .
+
+ft:hasPreviousHash a owl:DatatypeProperty ;
+    rdfs:domain ft:ForensicLog ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf case:predecessor .
+
+ft:hasLogData a owl:DatatypeProperty ;
+    rdfs:domain ft:ForensicLog ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf case:LogEntry .
+
+ft:allowsUpdate a owl:ObjectProperty ;
+    rdfs:domain ft:OrganizationPolicy ;
+    rdfs:range ft:SecurityExpert ;
+    rdfs:subPropertyOf uco-policy:allows .
+
+ft:updatesDevice a owl:ObjectProperty ;
+    rdfs:domain ft:SecurityExpert ;
+    rdfs:range ft:PhysicalAsset .
+
+ft:hasAccess a owl:ObjectProperty ;
+    rdfs:domain ft:AccessControlRule ;
+    rdfs:range ft:Role .
+
+ft:restrictsAccessTo a owl:ObjectProperty ;
+    rdfs:domain ft:AccessControlRule ;
+    rdfs:range ft:ForensicTwin .
+
+ft:hasEncryption a owl:DatatypeProperty ;
+    rdfs:domain ft:ForensicTwin ;
+    rdfs:range xsd:boolean .
+
+ft:hasPrivacyLevel a owl:DatatypeProperty ;
+    rdfs:domain ft:ForensicTwin ;
+    rdfs:range xsd:string .
+
+ft:accessedBy a owl:ObjectProperty ;
+    rdfs:domain ft:ForensicLog ;
+    rdfs:range uco-identity:Role .
+
+ft:grantsAccess a owl:ObjectProperty ;
+    rdfs:domain ft:OrganizationPolicy ;
+    rdfs:range uco-identity:Role .
+
+# === SWRL Rules ===
+"""swrl
+ft:FirmwareUpdate(?update), ft:triggers(?update, ?plc), uco-identity:hasRole(?user, ?role),
+FILTER NOT EXISTS { ?policy ft:hasAccess ft:SecurityExpert }
+-> ft:AuthenticityCheck(?update).
+""" .
+
+"""swrl
+ft:FirmwareUpdate(?update1), ft:triggers(?update1, ?plc), ft:hasSignature(?update1, ?hash),
+ft:FirmwareUpdate(?update2), ft:triggers(?update2, ?plc), ft:hasSignature(?update2, ?hash),
+ft:hasTimestamp(?update1, ?t1), ft:hasTimestamp(?update2, ?t2),
+FILTER (?update1 != ?update2 && abs(?t1 - ?t2) < 10)
+-> ft:ReplayAttackDetected(?plc).
+""" .
+
+"""swrl
+ft:PLC(?plc), ft:hasTimestamp(?plc, ?lastPhysicalUpdate),
+ft:ForensicTwin(?twin), ft:hasTimestamp(?twin, ?lastTwinUpdate),  # Updated to ForensicTwin
+FILTER (?lastTwinUpdate < ?lastPhysicalUpdate)
+-> ft:SyncAttackDetected(?plc).
+""" .
+
+"""swrl
+ft:PLC(?plc), ft:expectedStateHash(?plc, ?expectedHash),
+ft:observedStateHash(?plc, ?observedHash),
+FILTER (?expectedHash != ?observedHash)
+-> ft:IntegrityViolation(?plc).
+""" .
+
+"""swrl
+ft:ForensicLog(?log1), ft:hasStateHash(?log1, ?hash1),
+ft:ForensicLog(?log2), ft:hasPreviousHash(?log2, ?prevHash),
+FILTER (?hash1 != ?prevHash)
+-> ft:TamperedLogDetected(?log1).
+""" .
+
+# New SWRL Rule for Privacy Violation
+"""swrl
+ft:ForensicLog(?log),
+ft:hasLogData(?log, ?logData),
+ft:accessedBy(?log, ?user),
+uco-identity:hasRole(?user, ?role),
+FILTER NOT EXISTS { ?policy ft:grantsAccess ?user }
+-> ft:PrivacyViolation(?log).
+""" .
