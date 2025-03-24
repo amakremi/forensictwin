@@ -37,3 +37,15 @@ Forensic Logging: Extends CASE standards for tamper-evident logs (ForensicLog) w
 - Compliance with forensic standards for legal admissibility.
 
 This ontology bridges IoT operations, cybersecurity, and digital forensics, enabling proactive defense and structured post-incident investigations.
+
+## Citation :
+Please refer to the following citation if you use the ontology or reference it:
+
+### AMA Style
+Akremi A. ForensicTwin: Incorporating Digital Forensics Requirements Within a Digital Twin. Computers. 2025; 14(4):115. https://doi.org/10.3390/computers14040115
+
+### Chicago/Turabian Style
+Akremi, Aymen. 2025. "ForensicTwin: Incorporating Digital Forensics Requirements Within a Digital Twin" Computers 14, no. 4: 115. https://doi.org/10.3390/computers14040115
+
+### APA Style
+Akremi, A. (2025). ForensicTwin: Incorporating Digital Forensics Requirements Within a Digital Twin. Computers, 14(4), 115. https://doi.org/10.3390/computers14040115
